@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+
+	_ "github.com/lib/pq"
 )
 
 func Data() []string {
@@ -20,19 +22,19 @@ func Data() []string {
 	// データベース接続
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		return fmt.Sprintf("データベース接続エラー: %v", err)
+		return []string{fmt.Sprintf("データベース接続エラー: %v", err)}
 	}
 	defer db.Close()
 
 	err = db.Ping()
 	if err != nil {
-		return fmt.Sprintf("データベース疎通確認エラー: %v", err)
+		return []string{fmt.Sprintf("データベース疎通確認エラー: %v", err)}
 	}
 
 	// SELECT name FROM users の結果を配列に格納
 	rows, err := db.Query("SELECT name FROM users")
 	if err != nil {
-		return fmt.Sprintf("クエリエラー: %v", err)
+		return []string{fmt.Sprintf("クエリエラー: %v", err)}
 	}
 	defer rows.Close()
 
@@ -41,7 +43,7 @@ func Data() []string {
 		var name string
 		err := rows.Scan(&name)
 		if err != nil {
-			return fmt.Sprintf("スキャンエラー: %v", err)
+			return []string{fmt.Sprintf("スキャンエラー: %v", err)}
 		}
 		names = append(names, name)
 	}

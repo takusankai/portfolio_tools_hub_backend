@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  app:
+  app-dev:
     build:
       context: .
       dockerfile: build/Dockerfile
@@ -10,9 +10,11 @@ services:
       - "8080:8080"
     env_file:
       - build/env/dev.env
+    depends_on:
+      - db-dev
     volumes:
-      # ホットリロード用 (開発時のみ)
-      - ./:/src:ro
+      # - .:/src:ro
+      []
     restart: unless-stopped
     networks:
       - app-network
@@ -39,7 +41,9 @@ services:
       - build/env/dev.env
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
-      - ./db/init:/docker-entrypoint-initdb.d
+      - type: bind
+        source: ./db/init
+        target: /docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     networks:
@@ -54,7 +58,9 @@ services:
       - build/env/main.env
     volumes:
       - postgres_data_main:/var/lib/postgresql/data
-      - ./db/init:/docker-entrypoint-initdb.d
+      - type: bind
+        source: ./db/init
+        target: /docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     networks:

@@ -1,3 +1,5 @@
-module github.com/yourusername/portfolio_tools_hub_backend
+module github.com/takusankai/portfolio_tools_hub_backend
 
 go 1.23.4
+
+require github.com/lib/pq v1.10.9
