@@ -1,0 +1,38 @@
+# build/.air.toml
+root = "."
+tmp_dir = "tmp"
+
+[build]
+# 正しいビルドコマンド（コピーではなく実際にビルドする）
+cmd = "go build -o ./tmp/main ./app"
+# ビルド後に実行されるバイナリへのパス
+bin = "./tmp/main"
+# 監視対象のファイルパス
+include_ext = ["go", "tpl", "tmpl", "html"]
+# 監視から除外するディレクトリ
+exclude_dir = ["assets", "tmp", "vendor", "build", "db"]
+# 監視に含めるディレクトリ
+include_dir = ["app"]
+# 監視対象のファイル
+include_file = []
+# HMRを有効にするかどうか
+delay = 1000
+# 変更検知時に古いインスタンスをキルするかどうか
+kill_delay = "0s"
+# 成功時のカラー表示
+log = "build-errors.log"
+# エラー発生時に色付きでログを表示
+send_interrupt = true
+stop_on_error = true
+
+[color]
+main = "magenta"
+watcher = "cyan"
+build = "yellow"
+runner = "green"
+
+[log]
+time = true
+
+[misc]
+clean_on_exit = true

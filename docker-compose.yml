@@ -1,42 +1,59 @@
-version: '3.8'
-
 services:
+  # 開発環境: ホットリロード + ローカルDB
   app-dev:
     build:
       context: .
       dockerfile: build/Dockerfile
+      target: dev
     container_name: portfolio_dev
     ports:
       - "8080:8080"
     env_file:
       - build/env/dev.env
+      - build/env/secrets.env
+    environment:
+      - RUN_MIGRATIONS=${RUN_MIGRATIONS:-false}  # マイグレーションを実行するかどうかのフラグ
     depends_on:
       - db-dev
     volumes:
-      # - .:/src:ro
-      []
+      # ホットリロード用のソースコードマウント
+      - ./app:/app/app:rw
+      - ./go.mod:/app/go.mod:rw
+      - ./go.sum:/app/go.sum:rw
+      - ./build/.air.toml:/app/.air.toml:ro
     restart: unless-stopped
     networks:
       - app-network
     profiles: ["dev"]
+    # ホットリロードツールの実行
+    command: air -c /app/.air.toml
 
-  app-main:
+  # 本番環境: 最適化されたイメージ + Supabase利用
+  app-prob:
     build:
       context: .
       dockerfile: build/Dockerfile
+      target: prod
     container_name: portfolio_main
     ports:
-      - "8080:8080"
+      - "${PORT:-8080}:8080"  # Cloud Run対応
     env_file:
-      - build/env/main.env
+      - build/env/prob.env
+      - build/env/secrets.env
+    environment:
+      - RUN_MIGRATIONS=${RUN_MIGRATIONS:-false}  # マイグレーションを実行するかどうかのフラグ
     restart: unless-stopped
     networks:
       - app-network
-    profiles: ["main"]
+    dns:
+      - 8.8.8.8  # Google DNS
+      - 1.1.1.1  # Cloudflare DNS
+    profiles: ["prob"]
 
+  # 開発環境用のローカルDB
   db-dev:
     image: postgres:14
-    container_name: portfolio_tools_hub_db_dev
+    container_name: portfolio_dev_db
     env_file:
       - build/env/dev.env
     volumes:
@@ -51,27 +68,10 @@ services:
     restart: unless-stopped
     profiles: ["dev"]
 
-  db-main:
-    image: postgres:14
-    container_name: portfolio_tools_hub_db_main
-    env_file:
-      - build/env/main.env
-    volumes:
-      - postgres_data_main:/var/lib/postgresql/data
-      - type: bind
-        source: ./db/init
-        target: /docker-entrypoint-initdb.d
-    ports:
-      - "5432:5432"
-    networks:
-      - app-network
-    restart: unless-stopped
-    profiles: ["main"]
-
 networks:
   app-network:
     driver: bridge
+    enable_ipv6: true
 
 volumes:
   postgres_data_dev:
-  postgres_data_main:

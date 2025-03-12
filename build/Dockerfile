@@ -1,30 +1,62 @@
-FROM golang:1.24-alpine AS builder
-
-WORKDIR /build
-
-COPY go.mod ./
-COPY go.sum* ./
+# 共通ベースイメージ
+FROM golang:1.24.0-bookworm AS base
+WORKDIR /app
+COPY go.mod go.sum ./
 RUN go mod download
 
-# ソースコードのコピー
+# 開発環境用イメージ
+FROM base AS dev
+# 開発ツールのインストール
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    postgresql-client \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Airとその他開発ツールのインストール
+RUN go install github.com/air-verse/air@latest
+
+# ソースコードをコピー
 COPY . .
 
-# アプリケーションのビルド
+# エントリーポイントを設定
+COPY ./build/scripts/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# 初期化SQLとAir設定をコピー
+COPY ./db/init/init.sql /app/init.sql
+COPY ./build/.air.toml /app/.air.toml
+
+# 必要なディレクトリを作成
+RUN mkdir -p /app/tmp
+
+# エントリーポイント
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["/app/main"]
+
+# ビルダーイメージ
+FROM base AS builder
+# ソースコードをコピーしてビルド
+COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -v -o main ./app
 
-# 実行ステージ
-FROM alpine:3.18
+# 本番環境用イメージ
+FROM debian:bookworm-slim AS prod
+# 必要最小限のツールのみインストール
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
 
-# 必要なランタイム依存関係のインストール
-RUN apk --no-cache add ca-certificates
-
+# ワーキングディレクトリ
 WORKDIR /app
 
-# ビルドステージからバイナリをコピー
-COPY --from=builder /build/main /app/main
+# ビルドしたバイナリと必要ファイルのみをコピー
+COPY --from=builder /app/main /app/main
+COPY --from=builder /app/db/init/init.sql /app/init.sql
+COPY --from=builder /app/build/scripts/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
-# アプリケーションポートの公開
-EXPOSE 8080
-
-# アプリケーションの実行
+# エントリーポイント
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["/app/main"]

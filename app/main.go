@@ -9,11 +9,14 @@ import (
 )
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "環境変数:")
-	fmt.Fprintf(w, "DB_HOST: %s\n", os.Getenv("DB_HOST"))
-	fmt.Fprintf(w, "POSTGRES_USER: %s\n", os.Getenv("POSTGRES_USER"))
-
-	data := sample_package.Data()
+	fmt.Fprintln(w, "Hello, world!")
+	// 環境変数次第で Data() と Data2() のどちらかを呼び出す
+	var data []string
+	if os.Getenv("USE_LOCAL_DB") == "true" {
+		data = sample_package.Data()
+	} else {
+		data = sample_package.Data2()
+	}
 	for _, name := range data {
 		fmt.Fprintln(w, name)
 	}
