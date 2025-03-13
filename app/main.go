@@ -10,6 +10,7 @@ import (
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Hello, world!")
+	fmt.Fprintln(w, "test push")
 	// 環境変数次第で Data() と Data2() のどちらかを呼び出す
 	var data []string
 	if os.Getenv("USE_LOCAL_DB") == "true" {
