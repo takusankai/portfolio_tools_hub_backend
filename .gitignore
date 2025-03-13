@@ -24,3 +24,4 @@ go.work.sum
 # 追加
 *secrets.env
 *.DS_Store
+.vscode/
