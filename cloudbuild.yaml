@@ -1,6 +1,6 @@
 steps:
   # substitutesの値を表示
-  - name: 'Check environment variables'
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'bash'
     args: ['-c', 'echo "COMMIT_SHA: ${_COMMIT_SHA}" && echo "POSTGRES_PASSWORD_B64: ${_POSTGRES_PASSWORD_B64::10}" && echo "SUPABASE_KEY_B64: ${_SUPABASE_KEY_B64::10}" && echo "SUPABASE_URL_B64: ${_SUPABASE_URL_B64::10}"']
   
