@@ -30,7 +30,7 @@ jobs:
       uses: 'google-github-actions/setup-gcloud@v1.1.1'
       with:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
-        
+
     # デバッグ用に変数の確認    
     - name: 'Check environment variables'
       run: |
@@ -46,6 +46,9 @@ jobs:
     - name: Trigger Cloud Build
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
+        # コミットSHAの取得
+        COMMIT_SHA=$(git rev-parse HEAD)
+
         # Base64エンコードして特殊文字の問題を回避
         POSTGRES_PWD_B64=$(echo -n "${{ secrets.POSTGRES_PASSWORD }}" | base64)
         SUPABASE_KEY_B64=$(echo -n "${{ secrets.SUPABASE_KEY }}" | base64)
@@ -53,4 +56,4 @@ jobs:
         
         # エンコードした値をCloud Buildに渡す
         gcloud builds submit --config=cloudbuild.yaml \
-          --substitutions=_POSTGRES_PASSWORD_B64="$POSTGRES_PWD_B64",_SUPABASE_KEY_B64="$SUPABASE_KEY_B64",_SUPABASE_URL_B64="$SUPABASE_URL_B64"
+          --substitutions=_COMMIT_SHA="$COMMIT_SHA",_POSTGRES_PASSWORD_B64="$POSTGRES_PWD_B64",_SUPABASE_KEY_B64="$SUPABASE_KEY_B64",_SUPABASE_URL_B64="$SUPABASE_URL_B64"

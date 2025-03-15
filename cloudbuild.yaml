@@ -22,9 +22,10 @@ images:
 
 # 置換変数の明示的な宣言
 substitutions:
-  _POSTGRES_PASSWORD_B64: "a"
-  _SUPABASE_KEY_B64: "b"
-  _SUPABASE_URL_B64: "c"
+  _COMMIT_SHA: "a"
+  _POSTGRES_PASSWORD_B64: "b"
+  _SUPABASE_KEY_B64: "c"
+  _SUPABASE_URL_B64: "d"
 
 options:
   logging: CLOUD_LOGGING_ONLY
