@@ -20,8 +20,8 @@ RUN go install github.com/air-verse/air@latest
 COPY . .
 
 # エントリーポイントを設定
-COPY ./build/scripts/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+COPY ./build/scripts/docker_entrypoint.sh /app/docker_entrypoint.sh
+RUN chmod +x /app/docker_entrypoint.sh
 
 # 初期化SQLとAir設定をコピー
 COPY ./db/init/init.sql /app/init.sql
@@ -54,8 +54,8 @@ WORKDIR /app
 # ビルドしたバイナリと必要ファイルのみをコピー
 COPY --from=builder /app/main /app/main
 COPY --from=builder /app/db/init/init.sql /app/init.sql
-COPY --from=builder /app/build/scripts/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+COPY --from=builder /app/build/scripts/docker_entrypoint.sh /app/docker_entrypoint.sh
+RUN chmod +x /app/docker_entrypoint.sh
 
 # エントリーポイント
 ENTRYPOINT ["/app/docker_entrypoint.sh"]
