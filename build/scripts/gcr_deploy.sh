@@ -22,8 +22,11 @@ if [ -f "build/env/prob.env" ]; then
     ENV_FLAGS=""
     while IFS= read -r line; do
         if [[ ! -z "$line" ]]; then
-            # SUPABASEで始まる場合はスキップ（引数で上書き）
-            if [[ "$line" != SUPABASE_* && "$line" != *PASSWORD* ]]; then
+            # 以下の場合はスキップ
+            # - SUPABASEで始まる場合（引数で上書き）
+            # - PASSWORDを含む場合（シークレットで管理）
+            # - PORTの場合（Cloud Runの予約変数）
+            if [[ "$line" != SUPABASE_* && "$line" != *PASSWORD* && "$line" != PORT=* ]]; then
                 ENV_FLAGS="${ENV_FLAGS}${line},"
             fi
         fi
