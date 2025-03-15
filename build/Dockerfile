@@ -58,5 +58,5 @@ COPY --from=builder /app/build/scripts/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 # エントリーポイント
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["/app/docker_entrypoint.sh"]
 CMD ["/app/main"]
