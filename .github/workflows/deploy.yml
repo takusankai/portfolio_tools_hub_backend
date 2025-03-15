@@ -31,7 +31,7 @@ jobs:
       with:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         
-    # Cloud Buildトリガー（テスト成功時のみ）
+    # Cloud Buildトリガー
     - name: Trigger Cloud Build
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
