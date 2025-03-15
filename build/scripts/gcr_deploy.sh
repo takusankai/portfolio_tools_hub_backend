@@ -8,10 +8,10 @@ SUPABASE_KEY=$3
 SUPABASE_URL=$4
 
 # 引数の確認
-echo "Image name: $IMAGE_NAME"
-echo "Postgres password: $POSTGRES_PASSWORD"
-echo "Supabase key: $SUPABASE_KEY"
-echo "Supabase URL: $SUPABASE_URL"
+echo "Image name: $IMAGE_NAME (end)"
+echo "Postgres password: $POSTGRES_PASSWORD (end)"
+echo "Supabase key: $SUPABASE_KEY (end)"
+echo "Supabase URL: $SUPABASE_URL (end)"
 
 # 環境変数を読み込む
 echo "Loading environment variables from build/env/prob.env"
@@ -47,8 +47,7 @@ if [ -f "build/env/prob.env" ]; then
         --region=asia-northeast1 \
         --platform=managed \
         --allow-unauthenticated \
-        --set-env-vars="$ENV_FLAGS" \
-        --update-secrets="POSTGRES_PASSWORD=POSTGRES_PASSWORD:latest,SUPABASE_KEY=SUPABASE_KEY:latest" \
+        --set-env-vars="$ENV_FLAGS,POSTGRES_PASSWORD=$POSTGRES_PASSWORD,SUPABASE_KEY=$SUPABASE_KEY" \
         --port=8080
 else
     echo "ERROR: build/env/prob.env file not found!"
