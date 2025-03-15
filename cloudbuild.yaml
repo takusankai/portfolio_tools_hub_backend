@@ -15,7 +15,7 @@ steps:
   # スクリプトを実行してデプロイ
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: './build/scripts/gcr_deploy.sh'
-    args: ['gcr.io/$PROJECT_ID/portfolio-backend:$COMMIT_SHA', '${_POSTGRES_PASSWORD}', '${_SUPABASE_KEY}', '${_SUPABASE_URL}']
+    args: ['gcr.io/$PROJECT_ID/portfolio-backend:$COMMIT_SHA', '${_POSTGRES_PASSWORD_B64}', '${_SUPABASE_KEY_B64}', '${_SUPABASE_URL_B64}']
 
 images:
   - 'gcr.io/$PROJECT_ID/portfolio-backend:$COMMIT_SHA'
