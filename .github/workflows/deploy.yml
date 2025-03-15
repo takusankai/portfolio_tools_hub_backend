@@ -36,7 +36,7 @@ jobs:
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
         # シークレットの先頭部分をデバッグ表示（セキュリティのため全体は表示しない）
-        echo "PASSWORD: ${#POSTGRES_PASSWORD} chars | KEY: ${#SUPABASE_KEY} chars | URL: $SUPABASE_URL"
+        echo "PASSWORD: ${#POSTGRES_PASSWORD} chars | KEY: ${#SUPABASE_KEY} chars | URL: $SUPABASE_URL | GCP_SA_KEY: ${#GCP_SA_KEY} chars" | GCP_PROJECT_ID: ${#GCP_PROJECT_ID} chars"
     
         gcloud builds submit --config=cloudbuild.yaml \
           --substitutions="_POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}",_SUPABASE_URL="${{ secrets.SUPABASE_URL }}",_SUPABASE_KEY="${{ secrets.SUPABASE_KEY }}"
