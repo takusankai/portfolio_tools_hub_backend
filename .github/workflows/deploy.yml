@@ -36,4 +36,4 @@ jobs:
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
         gcloud builds submit --config=cloudbuild.yaml \
-          --substitutions=POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}',SUPABASE_URL='${{ secrets.SUPABASE_URL }}',SUPABASE_KEY='${{ secrets.SUPABASE_KEY }}'
+          --substitutions=_POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}',_SUPABASE_URL='${{ secrets.SUPABASE_URL }}',_SUPABASE_KEY='${{ secrets.SUPABASE_KEY }}'
