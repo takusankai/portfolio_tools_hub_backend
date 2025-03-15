@@ -1,0 +1,39 @@
+name: Test and Trigger Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    # - name: Set up Go
+    #   uses: actions/setup-go@v3
+    #   with:
+    #     go-version: '1.24'
+        
+    # - name: Run Tests
+    #   run: go test ./... -v
+    
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: '${{ secrets.GCP_SA_KEY }}'
+    
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1.1.1'
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        
+    # Cloud Buildトリガー（テスト成功時のみ）
+    - name: Trigger Cloud Build
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+        gcloud builds submit --config=cloudbuild.yaml \
+          --substitutions=_POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}',_SUPABASE_URL='${{ secrets.SUPABASE_URL }}',_SUPABASE_KEY='${{ secrets.SUPABASE_KEY }}'

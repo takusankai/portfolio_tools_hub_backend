@@ -10,7 +10,7 @@ services:
       - "8080:8080"
     env_file:
       - build/env/dev.env
-      - build/env/secrets.env
+      - build/env/dev.secrets.env
     environment:
       - RUN_MIGRATIONS=${RUN_MIGRATIONS:-false}  # マイグレーションを実行するかどうかのフラグ
     depends_on:
@@ -39,7 +39,7 @@ services:
       - "${PORT:-8080}:8080"  # Cloud Run対応
     env_file:
       - build/env/prob.env
-      - build/env/secrets.env
+      - build/env/prob.secrets.env
     environment:
       - RUN_MIGRATIONS=${RUN_MIGRATIONS:-false}  # マイグレーションを実行するかどうかのフラグ
     restart: unless-stopped
@@ -57,7 +57,7 @@ services:
     env_file:
       - build/env/dev.env
     volumes:
-      - postgres_data_dev:/var/lib/postgresql/data
+      - dev-postgres-db:/var/lib/postgresql/data
       - type: bind
         source: ./db/init
         target: /docker-entrypoint-initdb.d
@@ -74,4 +74,5 @@ networks:
     enable_ipv6: true
 
 volumes:
-  postgres_data_dev:
+  dev-postgres-db:
+    driver: local
