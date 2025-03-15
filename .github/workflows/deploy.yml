@@ -62,4 +62,4 @@ jobs:
         
         # エンコードした値をCloud Buildに渡す
         gcloud builds submit --config=cloudbuild.yaml \
-          --substitutions=_COMMIT_SHA="$COMMIT_SHA",_POSTGRES_PASSWORD_B64="$POSTGRES_PWD_B64",_SUPABASE_KEY_B64="$SUPABASE_KEY_B64",_SUPABASE_URL_B64="$SUPABASE_URL_B64"
+          --substitutions _COMMIT_SHA=$COMMIT_SHA,_POSTGRES_PASSWORD_B64=$POSTGRES_PWD_B64,_SUPABASE_KEY_B64=$SUPABASE_KEY_B64,_SUPABASE_URL_B64=$SUPABASE_URL_B64
