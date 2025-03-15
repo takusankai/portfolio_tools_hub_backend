@@ -31,7 +31,7 @@ COPY ./build/.air.toml /app/.air.toml
 RUN mkdir -p /app/tmp
 
 # エントリーポイント
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["/app/docker_entrypoint.sh"]
 CMD ["/app/main"]
 
 # ビルダーイメージ
