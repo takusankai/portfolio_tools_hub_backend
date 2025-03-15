@@ -1,17 +1,23 @@
 #!/bin/bash
 # filepath: /Volumes/1TB_SSD/DevelopsDirectory/Repositories/portfolio_tools_hub_backend/build/scripts/gcr_deploy.sh
 
-# 引数の取得
+# 引数の取得（Base64エンコードされた値）
 IMAGE_NAME=$1
-POSTGRES_PASSWORD=$2
-SUPABASE_KEY=$3
-SUPABASE_URL=$4
+POSTGRES_PASSWORD_B64=$2
+SUPABASE_KEY_B64=$3
+SUPABASE_URL_B64=$4
 
-# 引数の確認
-echo "Image name: $IMAGE_NAME (end)"
-echo "Postgres password: $POSTGRES_PASSWORD (end)"
-echo "Supabase key: $SUPABASE_KEY (end)"
-echo "Supabase URL: $SUPABASE_URL (end)"
+# Base64デコード
+echo "Decoding base64 encoded secrets..."
+POSTGRES_PASSWORD=$(echo -n "$POSTGRES_PASSWORD_B64" | base64 --decode)
+SUPABASE_KEY=$(echo -n "$SUPABASE_KEY_B64" | base64 --decode)
+SUPABASE_URL=$(echo -n "$SUPABASE_URL_B64" | base64 --decode)
+
+# デバッグ出力（センシティブ情報は部分表示）
+echo "Image name: $IMAGE_NAME"
+echo "Postgres password: ${POSTGRES_PASSWORD:0:3}****"
+echo "Supabase key: ${SUPABASE_KEY:0:10}****"
+echo "Supabase URL: $SUPABASE_URL"
 
 # 環境変数を読み込む
 echo "Loading environment variables from build/env/prob.env"
@@ -35,7 +41,7 @@ if [ -f "build/env/prob.env" ]; then
     # 末尾のカンマを削除
     ENV_FLAGS=${ENV_FLAGS%,}
     
-    # 引数で渡された値を追加
+    # デコードした引数で渡された値を追加
     if [ ! -z "$SUPABASE_URL" ]; then
         ENV_FLAGS="${ENV_FLAGS},SUPABASE_URL=${SUPABASE_URL}"
     fi

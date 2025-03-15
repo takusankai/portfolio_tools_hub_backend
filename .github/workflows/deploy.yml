@@ -35,12 +35,12 @@ jobs:
     - name: Trigger Cloud Build
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
-        # シークレットの先頭部分をデバッグ表示（セキュリティのため全体は表示しない）
-        echo "PASSWORD: ${#POSTGRES_PASSWORD} chars | KEY: ${#SUPABASE_KEY} chars | URL: $SUPABASE_URL | GCP_SA_KEY: ${#GCP_SA_KEY} chars | GCP_PROJECT_ID: ${#GCP_PROJECT_ID} chars"
-    
+        run: |
+        # Base64エンコードして特殊文字の問題を回避
+        POSTGRES_PWD_B64=$(echo -n "${{ secrets.POSTGRES_PASSWORD }}" | base64)
+        SUPABASE_KEY_B64=$(echo -n "${{ secrets.SUPABASE_KEY }}" | base64)
+        SUPABASE_URL_B64=$(echo -n "${{ secrets.SUPABASE_URL }}" | base64)
+        
+        # エンコードした値をCloud Buildに渡す
         gcloud builds submit --config=cloudbuild.yaml \
-          --substitutions="_POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}",_SUPABASE_URL="${{ secrets.SUPABASE_URL }}",_SUPABASE_KEY="${{ secrets.SUPABASE_KEY }}"
-      env:
-        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          --substitutions=_POSTGRES_PASSWORD_B64="$POSTGRES_PWD_B64",_SUPABASE_KEY_B64="$SUPABASE_KEY_B64",_SUPABASE_URL_B64="$SUPABASE_URL_B64"
