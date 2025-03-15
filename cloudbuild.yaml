@@ -22,9 +22,9 @@ images:
 
 # 置換変数の明示的な宣言
 substitutions:
-  POSTGRES_PASSWORD: ""
-  SUPABASE_KEY: ""
-  SUPABASE_URL: ""
+  _POSTGRES_PASSWORD: ""
+  _SUPABASE_KEY: ""
+  _SUPABASE_URL: ""
 
 options:
   logging: CLOUD_LOGGING_ONLY

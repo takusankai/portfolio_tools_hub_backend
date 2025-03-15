@@ -9,7 +9,9 @@ SUPABASE_URL=$4
 
 # 引数の確認
 echo "Image name: $IMAGE_NAME"
-echo "Supabase URL received: ${SUPABASE_URL:0:10}..."
+echo "Postgres password: $POSTGRES_PASSWORD"
+echo "Supabase key: $SUPABASE_KEY"
+echo "Supabase URL: $SUPABASE_URL"
 
 # 環境変数を読み込む
 echo "Loading environment variables from build/env/prob.env"
