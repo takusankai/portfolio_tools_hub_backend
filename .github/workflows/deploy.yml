@@ -31,11 +31,21 @@ jobs:
       with:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         
+    # デバッグ用に変数の確認    
+    - name: 'Check environment variables'
+      run: |
+        echo "POSTGRES_PASSWORD length: ${#POSTGRES_PASSWORD}"
+        echo "SUPABASE_KEY length: ${#SUPABASE_KEY}"
+        echo "SUPABASE_URL: $SUPABASE_URL"
+      env:
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        
     # Cloud Buildトリガー
     - name: Trigger Cloud Build
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
-        run: |
         # Base64エンコードして特殊文字の問題を回避
         POSTGRES_PWD_B64=$(echo -n "${{ secrets.POSTGRES_PASSWORD }}" | base64)
         SUPABASE_KEY_B64=$(echo -n "${{ secrets.SUPABASE_KEY }}" | base64)
