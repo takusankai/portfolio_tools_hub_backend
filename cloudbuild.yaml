@@ -10,11 +10,11 @@ steps:
   # スクリプトに実行権限を付与
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'bash'
-    args: ['-c', 'chmod +x ./deploy.sh']
+    args: ['-c', 'chmod +x ./gcr_deploy.sh']
   
   # スクリプトを実行してデプロイ
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: './build/scripts/deploy.sh'
+    entrypoint: './build/scripts/gcr_deploy.sh'
     args: ['gcr.io/$PROJECT_ID/portfolio-backend:$COMMIT_SHA']
 
 images:
