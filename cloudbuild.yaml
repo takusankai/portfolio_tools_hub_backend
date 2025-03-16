@@ -6,11 +6,11 @@ steps:
   
   # ビルドステップ
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/portfolio-backend:$COMMIT_SHA', '-f', 'build/Dockerfile', '--target', 'prod', '.']
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/portfolio-backend:${_COMMIT_SHA}', '-f', 'build/Dockerfile', '--target', 'prod', '.']
   
   # イメージをプッシュするステップ
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/portfolio-backend:$COMMIT_SHA']
+    args: ['push', 'gcr.io/$PROJECT_ID/portfolio-backend:${_COMMIT_SHA}']
   
   # スクリプトに実行権限を付与
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -20,10 +20,10 @@ steps:
   # スクリプトを実行してデプロイ
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: './build/scripts/gcr_deploy.sh'
-    args: ['gcr.io/$PROJECT_ID/portfolio-backend:$COMMIT_SHA', '${_POSTGRES_PASSWORD_B64}', '${_SUPABASE_KEY_B64}', '${_SUPABASE_URL_B64}']
+    args: ['gcr.io/$PROJECT_ID/portfolio-backend:${_COMMIT_SHA}', '${_POSTGRES_PASSWORD_B64}', '${_SUPABASE_KEY_B64}', '${_SUPABASE_URL_B64}']
 
 images:
-  - 'gcr.io/$PROJECT_ID/portfolio-backend:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/portfolio-backend:${_COMMIT_SHA}'
 
 # 置換変数の明示的な宣言
 substitutions:
