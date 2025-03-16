@@ -1,5 +1,5 @@
 # 共通ベースイメージ
-FROM golang:1.24.0-bookworm AS base
+FROM golang:1.23.4-bookworm AS base
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
