@@ -50,19 +50,12 @@ jobs:
         COMMIT_SHA=$(git rev-parse HEAD)
         echo "COMMIT_SHA: $COMMIT_SHA"
 
-        # Base64エンコードした値を一時ファイルに保存
-        echo -n "${{ secrets.POSTGRES_PASSWORD }}" | base64 > /tmp/pwd.b64
-        echo -n "${{ secrets.SUPABASE_KEY }}" | base64 > /tmp/key.b64
-        echo -n "${{ secrets.SUPABASE_URL }}" | base64 > /tmp/url.b64
+        # Base64エンコード（改良版）
+        POSTGRES_PWD=$(echo -n "${{ secrets.POSTGRES_PASSWORD }}" | base64 -w0)
+        SUPABASE_KEY=$(echo -n "${{ secrets.SUPABASE_KEY }}" | base64 -w0)
+        SUPABASE_URL=$(echo -n "${{ secrets.SUPABASE_URL }}" | base64 -w0)
         
-        # 一時ファイルから安全に読み込む
-        PWD_B64=$(cat /tmp/pwd.b64)
-        KEY_B64=$(cat /tmp/key.b64)
-        URL_B64=$(cat /tmp/url.b64)
-        
-        # 各変数を個別に渡す
+        # Cloud Build実行
+        echo "starting Cloud Build..."
         gcloud builds submit --config=cloudbuild.yaml \
-          --substitutions=_COMMIT_SHA="$COMMIT_SHA",_POSTGRES_PASSWORD_B64="$PWD_B64",_SUPABASE_KEY_B64="$KEY_B64",_SUPABASE_URL_B64="$URL_B64"
-        
-        # 一時ファイルを削除
-        rm /tmp/pwd.b64 /tmp/key.b64 /tmp/url.b64
+          --substitutions _COMMIT_SHA=$COMMIT_SHA,_POSTGRES_PASSWORD_B64=$POSTGRES_PWD,_SUPABASE_KEY_B64=$SUPABASE_KEY,_SUPABASE_URL_B64=$SUPABASE_URL
