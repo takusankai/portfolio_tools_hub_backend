@@ -1,0 +1,3 @@
+[submodule "api_spec"]
+	path = api_spec
+	url = https://github.com/takusankai/portfolio_tools_hub_api_spec.git
