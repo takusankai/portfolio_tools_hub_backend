@@ -50,12 +50,33 @@ jobs:
         COMMIT_SHA=$(git rev-parse HEAD)
         echo "COMMIT_SHA: $COMMIT_SHA"
 
-        # Base64エンコード（改良版）
-        POSTGRES_PWD=$(echo -n "${{ secrets.POSTGRES_PASSWORD }}" | base64 -w0)
-        SUPABASE_KEY=$(echo -n "${{ secrets.SUPABASE_KEY }}" | base64 -w0)
-        SUPABASE_URL=$(echo -n "${{ secrets.SUPABASE_URL }}" | base64 -w0)
+        # 一時ファイルを作成（ディレクトリ作成）
+        TEMP_DIR=$(mktemp -d)
         
-        # Cloud Build実行
-        echo "starting Cloud Build..."
+        # 変数をファイルに書き込む（改行なしで直接保存）
+        echo -n "${{ secrets.POSTGRES_PASSWORD }}" > $TEMP_DIR/password.txt
+        echo -n "${{ secrets.SUPABASE_KEY }}" > $TEMP_DIR/key.txt
+        echo -n "${{ secrets.SUPABASE_URL }}" > $TEMP_DIR/url.txt
+        
+        # ファイルをBase64エンコード
+        POSTGRES_PWD=$(base64 -w0 $TEMP_DIR/password.txt)
+        SUPABASE_KEY=$(base64 -w0 $TEMP_DIR/key.txt)
+        SUPABASE_URL=$(base64 -w0 $TEMP_DIR/url.txt)
+        
+        # 変数値の確認（デバッグ用・機密情報は表示しない）
+        echo "Encoded password length: ${#POSTGRES_PWD}"
+        echo "Encoded key length: ${#SUPABASE_KEY}"
+        echo "Encoded URL length: ${#SUPABASE_URL}"
+        
+        # 変数をファイルとして保存
+        echo $COMMIT_SHA > $TEMP_DIR/commit.txt
+        echo $POSTGRES_PWD > $TEMP_DIR/pwd_b64.txt
+        echo $SUPABASE_KEY > $TEMP_DIR/key_b64.txt
+        echo $SUPABASE_URL > $TEMP_DIR/url_b64.txt
+        
+        # ファイルから変数を読み込んでCloud Buildに渡す
         gcloud builds submit --config=cloudbuild.yaml \
-          --substitutions _COMMIT_SHA=$COMMIT_SHA,_POSTGRES_PASSWORD_B64=$POSTGRES_PWD,_SUPABASE_KEY_B64=$SUPABASE_KEY,_SUPABASE_URL_B64=$SUPABASE_URL
+          --substitutions=_COMMIT_SHA="$(cat $TEMP_DIR/commit.txt)",_POSTGRES_PASSWORD_B64="$(cat $TEMP_DIR/pwd_b64.txt)",_SUPABASE_KEY_B64="$(cat $TEMP_DIR/key_b64.txt)",_SUPABASE_URL_B64="$(cat $TEMP_DIR/url_b64.txt)"
+        
+        # 一時ファイルの削除
+        rm -rf $TEMP_DIR
