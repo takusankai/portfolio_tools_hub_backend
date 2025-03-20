@@ -3,7 +3,7 @@ module github.com/takusankai/portfolio_tools_hub_backend
 go 1.24.1
 
 require (
-	github.com/getkin/kin-openapi v0.130.0
+	github.com/getkin/kin-openapi v0.131.0
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/lib/pq v1.10.9
 	github.com/nedpals/supabase-go v0.5.0
@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/go-openapi/swag v0.23.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
