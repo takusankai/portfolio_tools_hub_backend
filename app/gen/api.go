@@ -49,6 +49,30 @@ type GetUserNameListResponse struct {
 	UserNameList []string `json:"userNameList"`
 }
 
+// LoginResponse defines model for loginResponse.
+type LoginResponse struct {
+	// EchoQuery クエリのエコー
+	EchoQuery string `json:"echoQuery"`
+
+	// SimpleMessage シンプルなメッセージ
+	SimpleMessage string `json:"simpleMessage"`
+
+	// Timestamp レスポンスタイムスタンプ
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// LogoutResponse defines model for logoutResponse.
+type LogoutResponse struct {
+	// EchoQuery クエリのエコー
+	EchoQuery string `json:"echoQuery"`
+
+	// SimpleMessage シンプルなメッセージ
+	SimpleMessage string `json:"simpleMessage"`
+
+	// Timestamp レスポンスタイムスタンプ
+	Timestamp time.Time `json:"timestamp"`
+}
+
 // SignUpResponse defines model for signUpResponse.
 type SignUpResponse struct {
 	// EchoQuery クエリのエコー
@@ -69,6 +93,12 @@ type GetUserIdListRequest = int
 
 // GetUserNameListRequest defines model for getUserNameListRequest.
 type GetUserNameListRequest = int
+
+// LoginRequest defines model for loginRequest.
+type LoginRequest = string
+
+// LogoutRequest defines model for logoutRequest.
+type LogoutRequest = string
 
 // SignUpRequest defines model for signUpRequest.
 type SignUpRequest = string
@@ -118,6 +148,18 @@ type CheckRootParams struct {
 	SampleQuery *CheckRootRequest `form:"sampleQuery,omitempty" json:"sampleQuery,omitempty"`
 }
 
+// LoginParams defines parameters for Login.
+type LoginParams struct {
+	// SampleQuery サンプルクエリ
+	SampleQuery *LoginRequest `form:"sampleQuery,omitempty" json:"sampleQuery,omitempty"`
+}
+
+// LogoutParams defines parameters for Logout.
+type LogoutParams struct {
+	// SampleQuery サンプルクエリ
+	SampleQuery *LogoutRequest `form:"sampleQuery,omitempty" json:"sampleQuery,omitempty"`
+}
+
 // SignUpParams defines parameters for SignUp.
 type SignUpParams struct {
 	// SampleQuery サンプルクエリ
@@ -141,6 +183,12 @@ type ServerInterface interface {
 	// ルートエンドポイント
 	// (GET /)
 	CheckRoot(w http.ResponseWriter, r *http.Request, params CheckRootParams)
+	// ユーザーログイン
+	// (GET /login)
+	Login(w http.ResponseWriter, r *http.Request, params LoginParams)
+	// ユーザーログアウト
+	// (GET /logout)
+	Logout(w http.ResponseWriter, r *http.Request, params LogoutParams)
 	// ユーザーのサインアップ
 	// (GET /signUp)
 	SignUp(w http.ResponseWriter, r *http.Request, params SignUpParams)
@@ -159,6 +207,18 @@ type Unimplemented struct{}
 // ルートエンドポイント
 // (GET /)
 func (_ Unimplemented) CheckRoot(w http.ResponseWriter, r *http.Request, params CheckRootParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ユーザーログイン
+// (GET /login)
+func (_ Unimplemented) Login(w http.ResponseWriter, r *http.Request, params LoginParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ユーザーログアウト
+// (GET /logout)
+func (_ Unimplemented) Logout(w http.ResponseWriter, r *http.Request, params LogoutParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -207,6 +267,60 @@ func (siw *ServerInterfaceWrapper) CheckRoot(w http.ResponseWriter, r *http.Requ
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CheckRoot(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// Login operation middleware
+func (siw *ServerInterfaceWrapper) Login(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params LoginParams
+
+	// ------------- Optional query parameter "sampleQuery" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sampleQuery", r.URL.Query(), &params.SampleQuery)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "sampleQuery", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.Login(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// Logout operation middleware
+func (siw *ServerInterfaceWrapper) Logout(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params LogoutParams
+
+	// ------------- Optional query parameter "sampleQuery" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sampleQuery", r.URL.Query(), &params.SampleQuery)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "sampleQuery", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.Logout(w, r, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -414,6 +528,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/", wrapper.CheckRoot)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/login", wrapper.Login)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/logout", wrapper.Logout)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/signUp", wrapper.SignUp)
 	})
 	r.Group(func(r chi.Router) {
@@ -429,33 +549,36 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"oRxeDxuFiPB2KipAOt+b/zcAAP//3GiRhL4nAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

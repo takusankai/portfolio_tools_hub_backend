@@ -25,3 +25,37 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request, params generate
 
 	utils.WriteJSON(w, http.StatusOK, response)
 }
+
+// Login はユーザーログイン処理を行うハンドラー
+func (h *Handler) Login(w http.ResponseWriter, r *http.Request, params generated.LoginParams) {
+	// 仮実装（開発中）
+	resp := generated.LoginResponse{
+		SimpleMessage: "ログイン機能は開発中です",
+		EchoQuery:     "",
+		Timestamp:     time.Now(),
+	}
+
+	// クエリパラメータがあれば設定
+	if params.SampleQuery != nil {
+		resp.EchoQuery = *params.SampleQuery
+	}
+
+	utils.WriteJSON(w, http.StatusOK, resp)
+}
+
+// Logout はユーザーログアウト処理を行うハンドラー
+func (h *Handler) Logout(w http.ResponseWriter, r *http.Request, params generated.LogoutParams) {
+	// 仮実装（開発中）
+	resp := generated.LogoutResponse{
+		SimpleMessage: "ログアウト機能は開発中です",
+		EchoQuery:     "",
+		Timestamp:     time.Now(),
+	}
+
+	// クエリパラメータがあれば設定
+	if params.SampleQuery != nil {
+		resp.EchoQuery = *params.SampleQuery
+	}
+
+	utils.WriteJSON(w, http.StatusOK, resp)
+}
